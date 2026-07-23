@@ -1,0 +1,21 @@
+# Web Framework & Server
+fastapi
+uvicorn[standard]
+
+# Telegram Bot API
+python-telegram-bot>=20.0
+httpx
+
+# Database & Caching
+asyncpg
+shared-memory-dict
+
+# Background Tasks & Scheduling
+apscheduler
+
+# System Monitoring
+psutil
+
+# Image & QR Code Generation
+qrcode
+Pillow
