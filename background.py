@@ -1340,7 +1340,7 @@ class BotLogic:
         size_mb = selected_video.get('size_mb', 0)
         video_url = selected_video['url']
         vid_id = selected_video['id']
-        caption = "Premium user can watch more paid videos here. https://t.me/Echelon_Files_Bot?startapp"
+        caption = "Premium user can watch more unlimited paid videos here. https://t.me/miss_tanya_chat_bot?startapp"
         
         # Protection status settings se nikalna
         is_protected = settings.get('protected', True)
