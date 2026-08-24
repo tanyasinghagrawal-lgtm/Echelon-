@@ -8,7 +8,7 @@ httpx
 
 # Database & Caching
 asyncpg
-shared-memory-dict
+redis
 
 # Background Tasks & Scheduling
 apscheduler
