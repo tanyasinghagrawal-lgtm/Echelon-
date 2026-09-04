@@ -907,19 +907,18 @@ async def run_cache_cleanup_and_ram_monitor():
                 hit_rate = (keyspace_hits / total_lookups * 100) if total_lookups > 0 else 0
 
                 report_message = (
-                    f"📊 **Valkey (Cache) Health Report** 📊\n\n"
-                    f"📅 **Timestamp:** `{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}`\n\n"
-                    f"👥 **Active Users in Cache:** `{active_cached_users}` (Last 10 mins)\n\n"
-                    f"🧠 **Valkey Memory Usage:**\n"
-                    f"   - **Used Memory:** `{used_memory}`\n"
-                    f"   - **Peak Memory:** `{peak_memory}`\n\n"
-                    f"📈 **Performance Stats:**\n"
-                    f"   - **Connected Clients:** `{connected_clients}`\n"
-                    f"   - **Cache Hit Rate:** `{hit_rate:.2f}%`\n"
-                    f"   - **Uptime:** `{uptime_days} days`\n\n"
-                    f"⚡ **Cache Engine:** `Aiven Valkey`"
-                )
-                
+                    f"📊 <b>Valkey (Cache) Health Report</b> 📊\n\n"
+                    f"📅 <b>Timestamp:</b> <code>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</code>\n\n"
+                    f"👥 <b>Active Users in Cache:</b> <code>{active_cached_users}</code> (Last 10 mins)\n\n"
+                    f"🧠 <b>Valkey Memory Usage:</b>\n"
+                    f"   • <b>Used Memory:</b> <code>{used_memory}</code>\n"
+                    f"   • <b>Peak Memory:</b> <code>{peak_memory}</code>\n\n"
+                    f"📈 <b>Performance Stats:</b>\n"
+                    f"   • <b>Connected Clients:</b> <code>{connected_clients}</code>\n"
+                    f"   • <b>Cache Hit Rate:</b> <code>{hit_rate:.2f}%</code>\n"
+                    f"   • <b>Uptime:</b> <code>{uptime_days} days</code>\n\n"
+                    f"⚡ <b>Cache Engine:</b> <code>Aiven Valkey</code>"
+                )                
                 await notify_admin(report_message)
                 
                 time_since_last_report = 0
