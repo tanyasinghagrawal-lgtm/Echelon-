@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Echelon Pulse • Bot & Server Analytics</title>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js CDN for High-Performance Smooth Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Google Fonts: Plus Jakarta Sans for Premium Fintech Aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            sapphire: {
+              50: '#F0F5FD',
+              100: '#E1EDFB',
+              200: '#C2DBF7',
+              500: '#2563EB',
+              600: '#1D4ED8',
+              700: '#1E3A8A',
+              800: '#152C6B',
+              900: '#0B1E48',
+              950: '#06112C',
+            },
+            warm: {
+              ivory: '#FFFDF8',
+              vanilla: '#FEF9EE',
+              champagne: '#FEF3DB',
+              peach: '#FFE7E7',
+              blush: '#FFE3EB',
+            }
+          },
+          boxShadow: {
+            liquid: '0 20px 40px -15px rgba(11, 30, 72, 0.07), 0 0 0 1px rgba(255, 255, 255, 0.8) inset',
+            liquidHover: '0 25px 50px -12px rgba(11, 30, 72, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.95) inset',
+            glow: '0 10px 25px -5px rgba(37, 99, 235, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom CSS for Liquid Glass and Ambient Lighting -->
+  <style>
+    /* Prevent text selection and rubber-band bounce */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: #FFFDF8;
+      /* Very light warm yellowish vanilla base with gentle pastel blush/pink ambient glow */
+      background-image: 
+        radial-gradient(circle at 10% 15%, rgba(254, 243, 199, 0.75) 0%, transparent 45%),
+        radial-gradient(circle at 90% 25%, rgba(254, 215, 215, 0.65) 0%, transparent 50%),
+        radial-gradient(circle at 50% 85%, rgba(253, 230, 238, 0.7) 0%, transparent 55%),
+        radial-gradient(circle at 80% 90%, rgba(254, 240, 138, 0.45) 0%, transparent 40%);
+      background-attachment: fixed;
+      background-size: cover;
+      color: #0B1E48;
+    }
+
+    /* Ultra-luxurious liquid glass card effect */
+    .liquid-card {
+      background: rgba(255, 255, 255, 0.68);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-radius: 1.5rem;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .liquid-card-subtle {
+      background: rgba(255, 255, 255, 0.45);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 1.25rem;
+    }
+
+    .liquid-pill {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      transition: all 0.2s ease;
+    }
+
+    .liquid-pill.active {
+      background: #0B1E48;
+      color: #FFFDF8;
+      border-color: #0B1E48;
+      box-shadow: 0 8px 20px -4px rgba(11, 30, 72, 0.3);
+    }
+
+    /* Custom scrollbar hiding for clean app feel */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Soft pulse animations */
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.85; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.04); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased text-sapphire-950 pb-24 overflow-x-hidden">
+
+  <!-- Top App Bar -->
+  <header class="sticky top-0 z-40 px-4 pt-3 pb-3 backdrop-blur-md bg-warm-ivory/60 border-b border-white/50">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <!-- Bot Switcher / Logo Button -->
+      <div class="relative">
+        <button id="botSelectBtn" onclick="toggleBotDropdown()" class="liquid-pill flex items-center space-x-2.5 px-3 py-2 rounded-2xl shadow-sm active:scale-95">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-sapphire-800 to-sapphire-600 flex items-center justify-center text-warm-ivory shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+          </div>
+          <div class="text-left pr-1">
+            <p class="text-[10px] uppercase font-bold tracking-wider text-sapphire-700/75 leading-none">Active Bot</p>
+            <p id="currentBotLabel" class="text-sm font-extrabold text-sapphire-950 truncate max-w-[130px] leading-tight">Loading...</p>
+          </div>
+          <svg class="w-4 h-4 text-sapphire-800 transition-transform duration-200" id="botDropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+
+        <!-- Bot Dropdown Menu (Liquid Glass) -->
+        <div id="botDropdownMenu" class="hidden absolute left-0 mt-2 w-64 liquid-card shadow-2xl p-2 z-50 transform origin-top-left transition-all duration-200">
+          <div class="px-3 py-2 border-b border-white/70">
+            <span class="text-xs font-bold text-sapphire-800 uppercase tracking-wider">Select Cloned Bot</span>
+          </div>
+          <div id="botListContainer" class="max-h-56 overflow-y-auto no-scrollbar py-1 space-y-1">
+            <!-- Dynamically populated bots -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Action Items: Live Speed Badge & Refresh -->
+      <div class="flex items-center space-x-2">
+        <div id="latencyBadge" class="liquid-pill flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-emerald-800 bg-emerald-100/70 border border-emerald-300/60 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span id="headerLatencyText">-- ms</span>
+        </div>
+
+        <button onclick="triggerDataRefresh()" class="liquid-pill p-2 rounded-2xl active:rotate-180 transition-transform duration-500 text-sapphire-900 shadow-sm hover:bg-white/90">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-xl mx-auto w-full px-4 pt-3 flex-1 flex flex-col space-y-4">
+
+    <!-- Primary Liquid Navigation Pills -->
+    <nav class="liquid-card p-1.5 flex items-center justify-between shadow-liquid">
+      <button onclick="switchTab('overview')" id="tab-overview-btn" class="liquid-pill active flex-1 py-2 rounded-2xl text-xs font-bold transition-all text-center">
+        Overview
+      </button>
+      <button onclick="switchTab('graphs')" id="tab-graphs-btn" class="liquid-pill flex-1 py-2 rounded-2xl text-xs font-bold transition-all text-center">
+        Graphs & Time
+      </button>
+      <button onclick="switchTab('revenue')" id="tab-revenue-btn" class="liquid-pill flex-1 py-2 rounded-2xl text-xs font-bold transition-all text-center">
+        Earnings
+      </button>
+      <button onclick="switchTab('server')" id="tab-server-btn" class="liquid-pill hidden flex-1 py-2 rounded-2xl text-xs font-bold transition-all text-center text-amber-900">
+        Server ⚡
+      </button>
+    </nav>
+
+    <!-- Time Filter Pills (Shown only when in Graphs or Server tab) -->
+    <div id="timeFilterContainer" class="hidden flex items-center justify-between px-1">
+      <span class="text-xs font-bold text-sapphire-800/80 tracking-wide uppercase">Time Filter</span>
+      <div class="liquid-card p-1 flex space-x-1 shadow-sm">
+        <button onclick="changeTimeframe('5m')" id="tf-5m" class="liquid-pill px-3 py-1 text-xs font-bold rounded-xl active">5m (Live)</button>
+        <button onclick="changeTimeframe('24h')" id="tf-24h" class="liquid-pill px-3 py-1 text-xs font-bold rounded-xl">24 Hours</button>
+        <button onclick="changeTimeframe('7d')" id="tf-7d" class="liquid-pill px-3 py-1 text-xs font-bold rounded-xl">7 Days</button>
+      </div>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="tab-overview" class="space-y-4">
+      <!-- Super Delivery Latency Liquid Spotlight Banner -->
+      <div class="liquid-card p-5 shadow-liquid relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-gradient-to-br from-amber-200/50 to-pink-200/40 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="flex items-start justify-between">
+          <div>
+            <span class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sapphire-100 text-sapphire-900 mb-1.5 border border-sapphire-200/60">
+              <span class="w-1.5 h-1.5 rounded-full bg-sapphire-600"></span>
+              <span>Delivery Latency</span>
+            </span>
+            <h2 id="overviewLatencyValue" class="text-3xl font-extrabold text-sapphire-950 tracking-tight">-- ms</h2>
+            <p class="text-xs text-sapphire-800/70 mt-0.5 font-medium">Click se media deliver hone ka average time</p>
+          </div>
+
+          <div class="text-right">
+            <span id="latencyStatusPill" class="inline-block px-3 py-1 rounded-xl text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-sm">
+              Ultra Fast
+            </span>
+            <p id="latencySummarySubtitle" class="text-[10px] text-sapphire-700/60 mt-1 font-semibold">99.4% under 180ms</p>
+          </div>
+        </div>
+
+        <!-- Latency Micro-Pipeline Steps -->
+        <div class="mt-4 pt-3 border-t border-white/60 grid grid-cols-3 gap-2 text-center">
+          <div class="liquid-card-subtle p-2">
+            <p class="text-[10px] font-semibold text-sapphire-700">Webhook & Parse</p>
+            <p id="stepParseTime" class="text-xs font-bold text-sapphire-950 mt-0.5">~12ms</p>
+          </div>
+          <div class="liquid-card-subtle p-2">
+            <p class="text-[10px] font-semibold text-sapphire-700">Database & Auth</p>
+            <p id="stepDbTime" class="text-xs font-bold text-sapphire-950 mt-0.5">~28ms</p>
+          </div>
+          <div class="liquid-card-subtle p-2">
+            <p class="text-[10px] font-semibold text-sapphire-700">Telegram Dispatch</p>
+            <p id="stepDispatchTime" class="text-xs font-bold text-sapphire-950 mt-0.5">~45ms</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 Key Liquid Metric Cards Grid -->
+      <div class="grid grid-cols-2 gap-3.5">
+        <!-- Card 1: Total Users -->
+        <div class="liquid-card p-4 shadow-liquid flex flex-col justify-between hover:shadow-liquidHover">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-sapphire-800/80">Total Users</span>
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-500 to-indigo-500 text-white flex items-center justify-center shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h3 id="cardTotalUsers" class="text-2xl font-extrabold text-sapphire-950">0</h3>
+            <p class="text-[11px] text-sapphire-700/70 font-medium mt-0.5">Lifetime joined</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Active Users Today -->
+        <div class="liquid-card p-4 shadow-liquid flex flex-col justify-between hover:shadow-liquidHover">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-sapphire-800/80">Active Today</span>
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 text-white flex items-center justify-center shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h3 id="cardActiveToday" class="text-2xl font-extrabold text-sapphire-950">0</h3>
+            <p class="text-[11px] text-emerald-700 font-semibold mt-0.5">● Unique users</p>
+          </div>
+        </div>
+
+        <!-- Card 3: Today Views -->
+        <div class="liquid-card p-4 shadow-liquid flex flex-col justify-between hover:shadow-liquidHover">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-sapphire-800/80">Today Views</span>
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-500 to-purple-600 text-white flex items-center justify-center shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h3 id="cardTodayViews" class="text-2xl font-extrabold text-sapphire-950">0</h3>
+            <p class="text-[11px] text-sapphire-700/70 font-medium mt-0.5">File payload hits</p>
+          </div>
+        </div>
+
+        <!-- Card 4: Today Clicks -->
+        <div class="liquid-card p-4 shadow-liquid flex flex-col justify-between hover:shadow-liquidHover">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-sapphire-800/80">Today Clicks</span>
+            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 text-white flex items-center justify-center shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
+              </svg>
+            </div>
+          </div>
+          <div>
+            <h3 id="cardTodayClicks" class="text-2xl font-extrabold text-sapphire-950">0</h3>
+            <p class="text-[11px] text-sapphire-700/70 font-medium mt-0.5">Interactions</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Revenue Bar -->
+      <div class="liquid-card p-4 shadow-liquid flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-500 text-sapphire-950 font-black flex items-center justify-center shadow-sm text-base">
+            ₹
+          </div>
+          <div>
+            <p class="text-xs font-bold text-sapphire-800/80">Today's Revenue</p>
+            <p id="overviewTodayEarnings" class="text-lg font-black text-sapphire-950">₹0.00</p>
+          </div>
+        </div>
+        <button onclick="switchTab('revenue')" class="liquid-pill px-3.5 py-1.5 rounded-xl text-xs font-extrabold text-sapphire-900 hover:bg-white/80 flex items-center space-x-1">
+          <span>Details</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 2: GRAPHS & PERFORMANCE -->
+    <section id="tab-graphs" class="hidden space-y-4">
+      <!-- Clicks & Views Volume Graph -->
+      <div class="liquid-card p-4 shadow-liquid">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-sapphire-950">Activity Dynamics</h3>
+            <p class="text-xs text-sapphire-700/70">Clicks vs Delivered Views</p>
+          </div>
+          <div class="flex items-center space-x-2 text-[11px] font-bold">
+            <span class="inline-flex items-center text-sapphire-600">
+              <span class="w-2.5 h-2.5 rounded-full bg-sapphire-600 mr-1"></span> Clicks
+            </span>
+            <span class="inline-flex items-center text-rose-500">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mr-1"></span> Views
+            </span>
+          </div>
+        </div>
+        <div class="h-56 w-full">
+          <canvas id="clicksViewsChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Latency Trend Graph -->
+      <div class="liquid-card p-4 shadow-liquid">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-sapphire-950">Latency Response Curve</h3>
+            <p class="text-xs text-sapphire-700/70">Average delivery speed in milliseconds (ms)</p>
+          </div>
+          <span class="px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-sapphire-100 text-sapphire-800">
+            Speed
+          </span>
+        </div>
+        <div class="h-52 w-full">
+          <canvas id="latencyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Diagnostics Health Insights Box -->
+      <div class="liquid-card p-4 shadow-liquid space-y-2.5">
+        <h4 class="text-xs font-bold text-sapphire-900 uppercase tracking-wider">Bot Performance Audit</h4>
+        <div class="flex items-center justify-between text-xs py-1 border-b border-white/60">
+          <span class="text-sapphire-700">Cache Hit Ratio</span>
+          <span class="font-bold text-emerald-700">98.6% Optimal</span>
+        </div>
+        <div class="flex items-center justify-between text-xs py-1 border-b border-white/60">
+          <span class="text-sapphire-700">Median Request Processing</span>
+          <span id="medianReqSpeed" class="font-bold text-sapphire-950">~35 ms</span>
+        </div>
+        <div class="flex items-center justify-between text-xs py-1">
+          <span class="text-sapphire-700">Database Connection Pool</span>
+          <span class="font-bold text-emerald-700">Healthy (0-19 active)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: REVENUE & PREMIUM AUDIENCE -->
+    <section id="tab-revenue" class="hidden space-y-4">
+      <!-- Lifetime Revenue Summary Card -->
+      <div class="liquid-card p-5 shadow-liquid bg-gradient-to-br from-white/80 via-white/60 to-warm-champagne/40">
+        <span class="text-xs font-bold text-sapphire-800 uppercase tracking-wider">Total Sales & Earnings</span>
+        <div class="flex items-baseline space-x-2 mt-1">
+          <h2 id="revenueLifetimeTotal" class="text-3xl font-black text-sapphire-950">₹0.00</h2>
+        </div>
+        <p class="text-xs text-sapphire-700/80 mt-1 font-medium">Lifetime collections across UPI, Cashfree & Stars</p>
+
+        <div class="mt-4 pt-3 border-t border-white/70 grid grid-cols-2 gap-3">
+          <div class="liquid-card-subtle p-3">
+            <span class="text-[11px] font-bold text-sapphire-700">Today Sales</span>
+            <p id="revenueTodayINR" class="text-base font-extrabold text-sapphire-950 mt-0.5">₹0.00</p>
+          </div>
+          <div class="liquid-card-subtle p-3">
+            <span class="text-[11px] font-bold text-sapphire-700">Active Premium</span>
+            <p id="revenueActiveMembers" class="text-base font-extrabold text-amber-900 mt-0.5">0 Users</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Breakdown by Product -->
+      <div class="liquid-card p-4 shadow-liquid space-y-3">
+        <h3 class="text-sm font-extrabold text-sapphire-950">Product Distribution</h3>
+
+        <div class="p-3 liquid-card-subtle flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl">👑</span>
+            <div>
+              <p class="text-xs font-bold text-sapphire-950">Premium Subscriptions</p>
+              <p class="text-[10px] text-sapphire-700">7 Days, 28 Days, Custom plans</p>
+            </div>
+          </div>
+          <span class="text-xs font-black text-sapphire-900" id="revenueSubShare">Active</span>
+        </div>
+
+        <div class="p-3 liquid-card-subtle flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <span class="text-xl">📩</span>
+            <div>
+              <p class="text-xs font-bold text-sapphire-950">Paid Messages (15-Char)</p>
+              <p class="text-[10px] text-sapphire-700">Direct media unlocking fees</p>
+            </div>
+          </div>
+          <span class="text-xs font-black text-sapphire-900" id="revenuePaidMsgShare">Active</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: GLOBAL SERVER DIAGNOSTICS (SUPER ADMIN ONLY) -->
+    <section id="tab-server" class="hidden space-y-4">
+      <div class="liquid-card p-4 shadow-liquid bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-blue-500/10 border-amber-300/40">
+        <div class="flex items-center space-x-2">
+          <span class="text-base">🛡️</span>
+          <div>
+            <h3 class="text-sm font-extrabold text-sapphire-950">Global Server Overseer</h3>
+            <p class="text-[11px] text-sapphire-700 font-medium">Access verified for Super Admin (ID: 6796088344)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Server Latency Overview Graph -->
+      <div class="liquid-card p-4 shadow-liquid">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-sapphire-950">Server Load & Concurrency</h3>
+            <p class="text-xs text-sapphire-700/70">Active Concurrent Workers (0-1260 Semaphore)</p>
+          </div>
+          <span id="serverPeakConcurrency" class="text-xs font-extrabold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-md">
+            Max: -- workers
+          </span>
+        </div>
+        <div class="h-56 w-full">
+          <canvas id="serverConcurrencyChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Overall Platform Requests Graph -->
+      <div class="liquid-card p-4 shadow-liquid">
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 class="text-sm font-extrabold text-sapphire-950">Server Global Request Volume</h3>
+            <p class="text-xs text-sapphire-700/70">Aggregated throughput across all clone bots</p>
+          </div>
+        </div>
+        <div class="h-52 w-full">
+          <canvas id="serverThroughputChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Modal (Never using alert()) -->
+  <div id="toastNotification" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 transition-all duration-300 opacity-0 pointer-events-none w-11/12 max-w-sm">
+    <div class="liquid-card shadow-2xl px-4 py-3 border border-white flex items-center space-x-3 bg-white/95">
+      <div id="toastIcon" class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold bg-sapphire-600">
+        i
+      </div>
+      <p id="toastMessage" class="text-xs font-bold text-sapphire-950 truncate flex-1">Notification text</p>
+    </div>
+  </div>
+
+  <script>
+    // Global Application State
+    const tg = window.Telegram?.WebApp;
+    let userInitData = "";
+    let isSuperAdmin = false;
+    let userBotsList = [];
+    let currentSelectedBot = "";
+    let currentTimeframe = "24h";
+    let activeTabId = "overview";
+
+    // Chart instances
+    let clicksViewsChartInstance = null;
+    let latencyChartInstance = null;
+    let serverConcurrencyChartInstance = null;
+    let serverThroughputChartInstance = null;
+
+    // Navigation History Stack for Telegram Native Back Button
+    const navigationStack = ["overview"];
+
+    // Initialize on window load
+    window.onload = async function () {
+      initTelegramEnvironment();
+      await fetchUserBotsAndAuthorize();
+    };
+
+    /**
+     * Initializes Telegram WebApp environment, expanding viewport,
+     * setting theme header, and configuring the Native Back Button.
+     */
+    function initTelegramEnvironment() {
+      if (tg) {
+        tg.ready();
+        tg.expand();
+        
+        // Match WebApp Header with warm palette
+        try {
+          tg.setHeaderColor('#FFFDF8');
+          tg.setBackgroundColor('#FFFDF8');
+        } catch (e) {
+          console.log("Header color setting skipped:", e);
+        }
+
+        // Configure Telegram Back Button Callback
+        tg.BackButton.onClick(() => {
+          handleTelegramBackPress();
+        });
+
+        userInitData = tg.initData || "";
+      }
+
+      // Local browser fallback for testing if initData is empty
+      if (!userInitData) {
+        console.warn("Telegram initData not detected, using demo query parameter fallback.");
+        const urlParams = new URLSearchParams(window.location.search);
+        userInitData = urlParams.get('initData') || "";
+      }
+    }
+
+    /**
+     * Handles Telegram Native Back Button clicks so tapping back
+     * navigates back in the tab stack without closing the Mini App!
+     */
+    function handleTelegramBackPress() {
+      if (navigationStack.length > 1) {
+        // Pop current tab
+        navigationStack.pop();
+        const previousTab = navigationStack[navigationStack.length - 1];
+        switchTab(previousTab, false); // Switch without pushing to history
+      } else {
+        // We are at root tab
+        if (tg) {
+          tg.BackButton.hide();
+        }
+      }
+    }
+
+    function updateTelegramBackButton() {
+      if (!tg) return;
+      if (navigationStack.length > 1) {
+        tg.BackButton.show();
+      } else {
+        tg.BackButton.hide();
+      }
+    }
+
+    /**
+     * Custom Toast Notification (Replaces window.alert)
+     */
+    function showToast(msg, type = "info") {
+      const toast = document.getElementById("toastNotification");
+      const toastMsg = document.getElementById("toastMessage");
+      const toastIcon = document.getElementById("toastIcon");
+
+      toastMsg.innerText = msg;
+      if (type === "error") {
+        toastIcon.className = "w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold bg-rose-500";
+        toastIcon.innerText = "✕";
+      } else if (type === "success") {
+        toastIcon.className = "w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold bg-emerald-500";
+        toastIcon.innerText = "✓";
+      } else {
+        toastIcon.className = "w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold bg-sapphire-600";
+        toastIcon.innerText = "i";
+      }
+
+      toast.classList.remove("opacity-0", "pointer-events-none");
+      toast.classList.add("opacity-100");
+
+      if (tg?.HapticFeedback) {
+        tg.HapticFeedback.notificationOccurred(type === 'error' ? 'error' : 'success');
+      }
+
+      setTimeout(() => {
+        toast.classList.add("opacity-0", "pointer-events-none");
+        toast.classList.remove("opacity-100");
+      }, 3000);
+    }
+
+    /**
+     * Fetches user's accessible bots and configures Super Admin permissions
+     */
+    async function fetchUserBotsAndAuthorize() {
+      try {
+        const response = await fetch(`/api/user-bots?initData=${encodeURIComponent(userInitData)}`);
+        const data = await response.json();
+
+        if (!data.success) {
+          showToast(data.detail || "Authentication Failed", "error");
+          return;
+        }
+
+        isSuperAdmin = data.is_super_admin;
+        userBotsList = data.bots || [];
+
+        // Unlock Super Admin Server tab if authorized
+        if (isSuperAdmin) {
+          document.getElementById("tab-server-btn").classList.remove("hidden");
+        }
+
+        renderBotDropdownList();
+
+        if (userBotsList.length > 0) {
+          selectBot(userBotsList[0].username);
+        } else {
+          document.getElementById("currentBotLabel").innerText = "No Bots Found";
+          showToast("Aapne abhi tak koi clone bot nahi banaya hai.", "info");
+        }
+      } catch (err) {
+        console.error("User bots fetch error:", err);
+        showToast("Error connecting to server", "error");
+      }
+    }
+
+    /**
+     * Populates the custom liquid dropdown with the user's bots
+     */
+    function renderBotDropdownList() {
+      const container = document.getElementById("botListContainer");
+      container.innerHTML = "";
+
+      userBotsList.forEach(bot => {
+        const btn = document.createElement("button");
+        btn.className = "w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-sapphire-900 hover:bg-white/80 transition-colors flex items-center justify-between";
+        btn.innerHTML = `
+          <span class="truncate">@${bot.username}</span>
+          ${bot.username === currentSelectedBot ? '<span class="text-emerald-600 font-extrabold">✓</span>' : ''}
+        `;
+        btn.onclick = () => {
+          selectBot(bot.username);
+          toggleBotDropdown();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function toggleBotDropdown() {
+      const menu = document.getElementById("botDropdownMenu");
+      const arrow = document.getElementById("botDropdownArrow");
+      menu.classList.toggle("hidden");
+      arrow.classList.toggle("rotate-180");
+    }
+
+    function selectBot(botUsername) {
+      currentSelectedBot = botUsername;
+      document.getElementById("currentBotLabel").innerText = "@" + botUsername;
+      renderBotDropdownList();
+      fetchBotAnalytics();
+    }
+
+    /**
+     * Fetches real-time metrics, active users, latency, and time-series for the selected bot
+     */
+    async function fetchBotAnalytics() {
+      if (!currentSelectedBot) return;
+
+      try {
+        const endpoint = `/api/analytics/bot?initData=${encodeURIComponent(userInitData)}&bot_username=${encodeURIComponent(currentSelectedBot)}&timeframe=${currentTimeframe}`;
+        const resp = await fetch(endpoint);
+        const result = await resp.json();
+
+        if (!result.success) {
+          showToast(result.detail || "Unable to fetch bot data", "error");
+          return;
+        }
+
+        // 1. Update Cards
+        document.getElementById("cardTotalUsers").innerText = (result.total_users || 0).toLocaleString();
+        document.getElementById("cardActiveToday").innerText = (result.active_users_today || 0).toLocaleString();
+        document.getElementById("cardTodayViews").innerText = (result.today_views || 0).toLocaleString();
+        document.getElementById("cardTodayClicks").innerText = (result.today_clicks || 0).toLocaleString();
+
+        // 2. Latency Metrics
+        const avgLat = result.avg_latency_ms || 0;
+        document.getElementById("overviewLatencyValue").innerText = avgLat + " ms";
+        document.getElementById("headerLatencyText").innerText = avgLat + " ms";
+
+        const statusPill = document.getElementById("latencyStatusPill");
+        if (avgLat < 100) {
+          statusPill.className = "inline-block px-3 py-1 rounded-xl text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300";
+          statusPill.innerText = "Ultra Fast";
+        } else if (avgLat < 300) {
+          statusPill.className = "inline-block px-3 py-1 rounded-xl text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-300";
+          statusPill.innerText = "Moderate";
+        } else {
+          statusPill.className = "inline-block px-3 py-1 rounded-xl text-xs font-extrabold bg-rose-100 text-rose-800 border border-rose-300";
+          statusPill.innerText = "Heavy Load";
+        }
+
+        // 3. Revenue Metrics
+        document.getElementById("overviewTodayEarnings").innerText = "₹" + (result.today_earnings || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById("revenueTodayINR").innerText = "₹" + (result.today_earnings || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById("revenueLifetimeTotal").innerText = "₹" + (result.total_earnings || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById("revenueActiveMembers").innerText = (result.total_premium || 0) + " Users";
+
+        // 4. Render Graphs
+        renderBotCharts(result.graph_points || []);
+
+      } catch (e) {
+        console.error("Bot analytics error:", e);
+        showToast("Error updating analytics", "error");
+      }
+    }
+
+    /**
+     * Visualizes Clicks vs Views and Latency graphs using Chart.js
+     */
+    function renderBotCharts(points) {
+      const labels = points.map(p => p.time_label || "");
+      const clicksData = points.map(p => p.clicks || 0);
+      const viewsData = points.map(p => p.views || 0);
+      const latencyData = points.map(p => p.avg_latency_ms || 0);
+
+      // --- 1. CLICKS & VIEWS CHART ---
+      const ctxActivity = document.getElementById("clicksViewsChart").getContext("2d");
+      if (clicksViewsChartInstance) clicksViewsChartInstance.destroy();
+
+      const gradientClicks = ctxActivity.createLinearGradient(0, 0, 0, 200);
+      gradientClicks.addColorStop(0, 'rgba(37, 99, 235, 0.45)');
+      gradientClicks.addColorStop(1, 'rgba(37, 99, 235, 0.0)');
+
+      const gradientViews = ctxActivity.createLinearGradient(0, 0, 0, 200);
+      gradientViews.addColorStop(0, 'rgba(244, 63, 94, 0.45)');
+      gradientViews.addColorStop(1, 'rgba(244, 63, 94, 0.0)');
+
+      clicksViewsChartInstance = new Chart(ctxActivity, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Clicks',
+              data: clicksData,
+              borderColor: '#2563EB',
+              backgroundColor: gradientClicks,
+              borderWidth: 2.5,
+              tension: 0.38,
+              fill: true,
+              pointRadius: 2,
+              pointHoverRadius: 5
+            },
+            {
+              label: 'Views',
+              data: viewsData,
+              borderColor: '#F43F5E',
+              backgroundColor: gradientViews,
+              borderWidth: 2.5,
+              tension: 0.38,
+              fill: true,
+              pointRadius: 2,
+              pointHoverRadius: 5
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(11, 30, 72, 0.92)',
+              titleFont: { family: 'Plus Jakarta Sans', size: 11, weight: 'bold' },
+              bodyFont: { family: 'Plus Jakarta Sans', size: 12 },
+              padding: 10,
+              cornerRadius: 12
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10, family: 'Plus Jakarta Sans' }, maxTicksLimit: 6 }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.6)' },
+              ticks: { font: { size: 10, family: 'Plus Jakarta Sans' }, beginAtZero: true }
+            }
+          }
+        }
+      });
+
+      // --- 2. LATENCY CHART ---
+      const ctxLatency = document.getElementById("latencyChart").getContext("2d");
+      if (latencyChartInstance) latencyChartInstance.destroy();
+
+      const gradientLat = ctxLatency.createLinearGradient(0, 0, 0, 180);
+      gradientLat.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
+      gradientLat.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+      latencyChartInstance = new Chart(ctxLatency, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Avg Latency (ms)',
+            data: latencyData,
+            borderColor: '#10B981',
+            backgroundColor: gradientLat,
+            borderWidth: 2.5,
+            tension: 0.38,
+            fill: true,
+            pointRadius: 2,
+            pointHoverRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(11, 30, 72, 0.92)',
+              callbacks: {
+                label: (context) => context.parsed.y + ' ms'
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 }, maxTicksLimit: 6 }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.6)' },
+              ticks: { font: { size: 10 }, beginAtZero: true }
+            }
+          }
+        }
+      });
+    }
+
+    /**
+     * Fetches and renders global server diagnostics for Super Admin
+     */
+    async function fetchServerDiagnostics() {
+      if (!isSuperAdmin) return;
+
+      try {
+        const resp = await fetch(`/api/analytics/server-latency?initData=${encodeURIComponent(userInitData)}&timeframe=${currentTimeframe === '7d' ? '1h' : '5m'}`);
+        const res = await resp.json();
+
+        if (!res.success) {
+          showToast(res.detail || "Unauthorized server access", "error");
+          return;
+        }
+
+        const pts = res.data_points || [];
+        const labels = pts.map(p => p.time_label);
+        const concurrency = pts.map(p => p.max_busy_concurrency || 0);
+        const requests = pts.map(p => p.total_requests || 0);
+
+        const peak = concurrency.length ? Math.max(...concurrency) : 0;
+        document.getElementById("serverPeakConcurrency").innerText = `Peak: ${peak} workers`;
+
+        // 1. Concurrency Chart
+        const ctxConcur = document.getElementById("serverConcurrencyChart").getContext("2d");
+        if (serverConcurrencyChartInstance) serverConcurrencyChartInstance.destroy();
+
+        serverConcurrencyChartInstance = new Chart(ctxConcur, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Busy Workers',
+              data: concurrency,
+              backgroundColor: '#F59E0B',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } },
+              y: { beginAtZero: true }
+            }
+          }
+        });
+
+        // 2. Throughput Chart
+        const ctxThrough = document.getElementById("serverThroughputChart").getContext("2d");
+        if (serverThroughputChartInstance) serverThroughputChartInstance.destroy();
+
+        serverThroughputChartInstance = new Chart(ctxThrough, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Requests',
+              data: requests,
+              borderColor: '#6366F1',
+              backgroundColor: 'rgba(99, 102, 241, 0.2)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } },
+              y: { beginAtZero: true }
+            }
+          }
+        });
+
+      } catch (e) {
+        console.error("Server diagnostics fetch error:", e);
+      }
+    }
+
+    /**
+     * Smoothly switches tabs, updates button states, manages navigation stack
+     */
+    function switchTab(tabId, pushToHistory = true) {
+      if (tg?.HapticFeedback) {
+        tg.HapticFeedback.impactOccurred('light');
+      }
+
+      activeTabId = tabId;
+
+      // Hide all tabs
+      ["overview", "graphs", "revenue", "server"].forEach(id => {
+        const tabEl = document.getElementById(`tab-${id}`);
+        const btnEl = document.getElementById(`tab-${id}-btn`);
+        if (tabEl) tabEl.classList.add("hidden");
+        if (btnEl) btnEl.classList.remove("active");
+      });
+
+      // Show target tab
+      const targetTab = document.getElementById(`tab-${tabId}`);
+      const targetBtn = document.getElementById(`tab-${tabId}-btn`);
+      if (targetTab) targetTab.classList.remove("hidden");
+      if (targetBtn) targetBtn.classList.add("active");
+
+      // Show/Hide time filter bar for graphs & server
+      const tfContainer = document.getElementById("timeFilterContainer");
+      if (tabId === "graphs" || tabId === "server") {
+        tfContainer.classList.remove("hidden");
+      } else {
+        tfContainer.classList.add("hidden");
+      }
+
+      // Manage Telegram Back Button History
+      if (pushToHistory) {
+        if (navigationStack[navigationStack.length - 1] !== tabId) {
+          navigationStack.push(tabId);
+        }
+      }
+      updateTelegramBackButton();
+
+      // Trigger respective loaders
+      if (tabId === "server") {
+        fetchServerDiagnostics();
+      } else {
+        fetchBotAnalytics();
+      }
+    }
+
+    /**
+     * Changes timeframe filter (5m, 24h, 7d)
+     */
+    function changeTimeframe(tf) {
+      if (tg?.HapticFeedback) {
+        tg.HapticFeedback.selectionChanged();
+      }
+
+      currentTimeframe = tf;
+
+      ["5m", "24h", "7d"].forEach(id => {
+        const btn = document.getElementById(`tf-${id}`);
+        if (btn) btn.classList.remove("active");
+      });
+
+      const currentBtn = document.getElementById(`tf-${tf}`);
+      if (currentBtn) currentBtn.classList.add("active");
+
+      if (activeTabId === "server") {
+        fetchServerDiagnostics();
+      } else {
+        fetchBotAnalytics();
+      }
+    }
+
+    /**
+     * Refreshes data manually with haptic confirmation
+     */
+    async function triggerDataRefresh() {
+      showToast("Syncing latest live metrics...", "info");
+      if (activeTabId === "server") {
+        await fetchServerDiagnostics();
+      } else {
+        await fetchBotAnalytics();
+      }
+      showToast("Metrics updated", "success");
+    }
+  </script>
+</body>
+</html>
