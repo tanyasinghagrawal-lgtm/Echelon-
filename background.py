@@ -61,7 +61,7 @@ DEFAULT_CHANNELS = [
 IS_DEFAULT_CHANNEL_CHECK_ON = False
 # --- NAYI LINES YAHAN KHATAM HOTI HAIN ---
 # Baaki ka code (MAIN_BOT_TOKEN, etc.) waise hi rahega
-EC2_PUBLIC_IP_OR_DOMAIN = "https://echelon.antideploy.com/"
+EC2_PUBLIC_IP_OR_DOMAIN = "https://echelon.antideploy.com"
 MAIN_BOT_TOKEN = "7932461290:AAHeVsa-iadPNOdnPlNSokmfKo88PCyvlYE"
 MAIN_BOT_USERNAME = "Echelon_File_Store_Bot"
 WEB_SERVER_HOST = "0.0.0.0"
