@@ -65,7 +65,6 @@ EC2_PUBLIC_IP_OR_DOMAIN = "https://echelon-b5kp.onrender.com"
 DEFAULT_RENDER_DOMAIN = "https://echelon-b5kp.onrender.com"
 HIGH_TRAFFIC_DOMAIN = "https://echelon-b5kp.onrender.com"
 
-MAIN_BOT_TOKEN = "7932461290:AAHeVsa-iadPNOdnPlNSokmfKo88PCyvlYE"
 TG_API_KEY = "67932461290:AAE1ZXIBX2D5g7cQSrXmsGLvMvYTqtKBMrg"
 
 # API use karte waqt
